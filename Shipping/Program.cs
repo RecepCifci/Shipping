@@ -13,11 +13,6 @@ namespace Shipping
 {
     class Program
     {
-        //public static List<ShippingInfo> shippingList = new List<ShippingInfo>();
-        //static int shippingPerAmount = 50;
-        //static int pricePerPart = 7;
-        //static int maxDifferenceBetweenParts = 1;
-
         private static GeneralParameter generalParameter = new GeneralParameter();
         private static GeneralParameterManager generalParameterManager = new GeneralParameterManager();
         private static PartyManager partyManager = new PartyManager();
