@@ -10,6 +10,8 @@ namespace Shipping.DataAccessLayer
     {
         public DbSet<Party> Parties { get; set; }
         public DbSet<GeneralParameter> GeneralParameters { get; set; }
+        public DbSet<PartyPerBox> PartPerBoxes { get; set; }
+        
         public DatabaseContext()
         {
             Database.SetInitializer(new MyInitializer());

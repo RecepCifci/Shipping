@@ -13,67 +13,71 @@ namespace Shipping
 {
     class Program
     {
-        public static List<ShippingInfo> shippingList = new List<ShippingInfo>();
-        static int shippingPerAmount = 50;
-        static int pricePerPart = 7;
-        static int maxDifferenceBetweenParts = 1;
+        //public static List<ShippingInfo> shippingList = new List<ShippingInfo>();
+        //static int shippingPerAmount = 50;
+        //static int pricePerPart = 7;
+        //static int maxDifferenceBetweenParts = 1;
 
         private static GeneralParameter generalParameter = new GeneralParameter();
         private static GeneralParameterManager generalParameterManager = new GeneralParameterManager();
         private static PartyManager partyManager = new PartyManager();
+        private static PartyPerBoxManager partyPerBoxManager = new PartyPerBoxManager();
+        public static List<Party> partyList = new List<Party>();
+        public static List<PartyPerBox> partyPerBoxList = new List<PartyPerBox>();
         static void Main(string[] args)
         {
-            if (Debugger.IsAttached)
-                CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.GetCultureInfo("en-US");
+            //generalParameterManager.initdb(); // Create DB and Objects
+            generalParameter = generalParameterManager.List().FirstOrDefault();
 
-            generalParameterManager.initdb();
-            generalParameter = generalParameterManager.GetGeneralParameter();
-
-
-
-            shippingList = new List<ShippingInfo>
-            {
-                new ShippingInfo{  PartWeight = 3},
-                new ShippingInfo{  PartWeight = 3},
-                new ShippingInfo{  PartWeight = 8},
-                new ShippingInfo{  PartWeight = 11},
-                new ShippingInfo{  PartWeight = 13 }
-            };
-
-            foreach (var item in shippingList)
+            partyList = partyManager.List();
+            foreach (var item in partyList)
             {
                 item.PartCount = FindPartCount(item);
-                item.Amount = (shippingPerAmount * item.PartCount) + (pricePerPart * item.PartWeight);
+                item.Amount = (generalParameter.shippingPerAmount * item.PartCount) + (generalParameter.pricePerPart * item.PartWeight);
             }
 
-            foreach (var item in shippingList)
+            foreach (var item in partyList)
             {
-                Console.WriteLine("PartWeight: " + item.PartWeight + " PartCount: " + item.PartCount + " Amount: " + item.Amount);
+                partyManager.Update(item);
             }
+            foreach (var item in partyPerBoxList)
+            {
+                partyPerBoxManager.Insert(item);
+            }
+            WritePackageCounts();
+            WritePackagePerPart();
+
             Console.ReadLine();
         }
-        public class ShippingInfo
+        public static void WritePackageCounts()
         {
-            public int PartWeight { get; set; }
-            public int PartCount { get; set; }
-            public int Amount { get; set; }
-            public List<ShippingInfo> PartList { get; set; }
+            foreach (var item in partyList)
+            {
+                Console.WriteLine("BOX_ID: " + item.Id + " WEIGHT: " + item.PartWeight + " PART_COUNT: " + item.PartCount);
+            }
         }
-        public static int FindPartCount(ShippingInfo shipping)
+        public static void WritePackagePerPart()
+        {
+            foreach (var item in partyPerBoxList)
+            {
+                Console.WriteLine("BOX_ID: " + item.PartyId + " PART_NUMBER: " + item.Id + " PART_WEIGHT: " + item.PartWeight + " PART_COST: " + item.PartCost);
+            }
+        }
+        public static int FindPartCount(Party shipping)
         {
             for (int index = 2; index <= shipping.PartWeight; index++)
             {
-                if (shippingList.Any(x => x.PartCount == index)) continue;
+                if (partyList.Any(x => x.PartCount == index)) continue;
                 List<int> splittedList = Split(shipping.PartWeight, index);
                 if (CompareItemsOfArray(splittedList.ToArray()))
                 {
-                    shipping.PartList = new List<ShippingInfo>();
                     foreach (var item in splittedList)
                     {
-                        shipping.PartList.Add(new ShippingInfo
+                        partyPerBoxList.Add(new PartyPerBox
                         {
                             PartWeight = item,
-                            Amount = shippingPerAmount + (pricePerPart * item)
+                            PartCost = generalParameter.shippingPerAmount + (generalParameter.pricePerPart * item),
+                            PartyId = shipping.Id
                         });
                     }
 
@@ -104,7 +108,7 @@ namespace Shipping
                 int current = array[index];
                 for (int i = index + 1; i < index; i++)
                 {
-                    if (Math.Abs(array[index] - array[i]) > maxDifferenceBetweenParts) return false;
+                    if (Math.Abs(array[index] - array[i]) > generalParameter.maxDifferenceBetweenParts) return false;
                 }
                 CompareItemsOfArray(array.Skip(1).ToArray());
             }

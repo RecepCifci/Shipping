@@ -16,9 +16,5 @@ namespace Shipping.BusinessLayer
             DatabaseContext db = new DatabaseContext();
             db.GeneralParameters.ToList();
         }
-        public GeneralParameter GetGeneralParameter()
-        {
-            return List().FirstOrDefault();
-        }
     }
 }

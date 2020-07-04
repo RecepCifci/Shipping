@@ -1,5 +1,4 @@
 ﻿using Shipping.BusinessLayer.Abstract;
-using Shipping.DataAccessLayer;
 using Shipping.Model;
 using System;
 using System.Collections.Generic;
@@ -9,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Shipping.BusinessLayer
 {
-   public class PartyManager : ManagerBase<Party>
+    public class PartyPerBoxManager : ManagerBase<PartyPerBox>
     {
     }
 }
